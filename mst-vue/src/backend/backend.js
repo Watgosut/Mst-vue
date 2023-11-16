@@ -80,6 +80,46 @@ function kruskal(graph) {
     return mst_edges;
 }
 
+function prim(graph) {
+    const num_vertices = graph.V;
+    const visited = Array(num_vertices).fill(false);
+    const dist = Array(num_vertices).fill(Infinity);
+    const mst_edges = [];
+    
+    dist[0] = 0;
+    
+    const pq = [];
+    const src = 0;
+    visited[src] = true;
+    for (const edge of graph.getEdges(src)) {
+        dist[edge.dest] = edge.weight;
+        pq.push(edge);
+    }
+    
+    while (pq.length > 0) {
+        const edge = pq.shift();
+    
+        if (visited[edge.dest]) {
+            continue;
+        }
+    
+        visited[edge.dest] = true;
+        mst_edges.push(edge);
+        if (mst_edges.length === num_vertices - 1) {
+            return mst_edges;
+        }
+        for (const e of graph.getEdges(edge.dest)) {
+            if (!visited[e.dest] && e.weight < dist[e.dest]) {
+                dist[e.dest] = e.weight;
+                pq.push(e);
+            }
+        }
+    }
+    return mst_edges;
+}
+
+
+
 function test() {
     const num_vertices = 4;
     const edges = [
@@ -97,9 +137,8 @@ function test() {
         id += 1;
     }
 
-    for (const e of kruskal(graph)) {
+    for (const e of prim(graph)) {
         console.log(e.src, e.dest, e.weight);
     }
 }
-
-test();
+test()
