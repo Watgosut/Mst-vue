@@ -5,23 +5,17 @@
                 <div class="prim-algorithm">
                     <pre>
                       <code style="font-size: smaller;text-align: left">
-<span ref="codeLine1">Prim(G, start_vertex):</span>
+<span ref="codeLine1">Kruskal(G):</span>
 <span ref="codeLine2">    initialize an empty set MST (minimum spanning tree)</span>
-<span ref="codeLine3">    initialize a priority queue Q and list dist with INF</span>
-<span ref="codeLine4">    set the dist of start_vertex to 0</span>
-<span ref="codeLine5">    update edges related to start_vertex into Q and dist with their weights</span>
-<span ref="codeLine6">    while Q is not empty:</span>
-<span ref="codeLine7">        edge = extract_min(Q)</span>
-<span ref="codeLine8">        if visited[edge.dest]:</span>
-<span ref="codeLine9">             continue</span>
-<span ref="codeLine10">        add edge to MST and visited[edge.dest]=True</span>
-<span ref="codeLine11">        if edges of mst equals to number of vertices -1 </span>
-<span ref="codeLine12">             return MST</span>
-<span ref="codeLine13">       for each vertex v adjacent to u:</span>
-<span ref="codeLine14">            if v is in Q and weight(u, v) < dist[v]:</span>
-<span ref="codeLine15">                update dist[v] to weight(u, v)</span>
-<span ref="codeLine16">                insert (u,v) to Q</span>
-<span ref="codeLine17">    return MST</span>
+<span ref="codeLine3">    sort edges of G by increasing order by weight</span>
+<span ref="codeLine4">    initial the UnionFind by vertices of G</span>
+<span ref="codeLine5">    for edge in edges of G:</span>
+<span ref="codeLine6">        if edge.src and edge.dest is not in one set in UnionFind </span>
+<span ref="codeLine7">            union edge.src and edge.dest in UnionFind</span>
+<span ref="codeLine8">            add edge to MST</span>
+<span ref="codeLine9">        if edges of mst equals to number of vertices -1 </span>
+<span ref="codeLine10">             return MST</span>
+<span ref="codeLine11">    return MST</span>
                       </code>
                     </pre>
                 </div>
@@ -71,37 +65,37 @@
 
 <script>
 import * as d3 from 'd3';
-import {create_and_prim} from "@/backend/API";
+import {create_and_kruskal} from "@/backend/API";
 
 export default {
-  data() {
-    return {
-      nodes: [],
-      links: [],
-        highlight:[],
-        progress: 0,
-        pre:null,
-        start:false,
-        speed: 1000,
-        interval:null,
-        type: ['primary','default','default']
-    }
-  },
+    data() {
+        return {
+            nodes: [],
+            links: [],
+            highlight:[],
+            progress: 0,
+            pre:null,
+            start:false,
+            speed: 1000,
+            interval:null,
+            type: ['primary','default','default']
+        }
+    },
     methods:{
-      changeSpeed(speed,index){
-          this.speed = speed
-          this.type = ['default','default','default']
-          this.type[index] = 'primary'
-          if(this.start){
-              clearInterval(this.interval);
-              this.interval = this.interval = setInterval(() => {
-                  if (this.start) {
-                      this.progress += 1;
-                      this.updateHighlight();
-                  }
-              }, this.speed);
-          }
-      },
+        changeSpeed(speed,index){
+            this.speed = speed
+            this.type = ['default','default','default']
+            this.type[index] = 'primary'
+            if(this.start){
+                clearInterval(this.interval);
+                this.interval = this.interval = setInterval(() => {
+                    if (this.start) {
+                        this.progress += 1;
+                        this.updateHighlight();
+                    }
+                }, this.speed);
+            }
+        },
         startProgress(){
             if(this.interval !== null && this.start){
                 clearInterval(this.interval);
@@ -155,92 +149,92 @@ export default {
     },
     mounted() {
         var num = parseInt(this.$route.params.num)
-        const res = create_and_prim(num)
+        const res = create_and_kruskal(num)
         this.nodes = res.nodes
         this.links = res.links
-         this.highlight = res.highlight
+        this.highlight = res.highlight
 
-         // create a network
-         var nodes = this.nodes
+        // create a network
+        var nodes = this.nodes
 
-         var links = this.links
+        var links = this.links
 
-         var svg = d3.select("#network")
-             .append("svg")
-             .attr("width", '100%')
-             .attr("height", 680);
+        var svg = d3.select("#network")
+            .append("svg")
+            .attr("width", '100%')
+            .attr("height", 680);
 
-         var simulation = d3.forceSimulation(nodes)
-             .force("link", d3.forceLink(links).id(d => d.id).distance(150))
-             .force("charge", d3.forceManyBody().strength(-200))
-             .force("center", d3.forceCenter(300, 300))
-             .force('collide', d3.forceCollide(20).iterations(1));
+        var simulation = d3.forceSimulation(nodes)
+            .force("link", d3.forceLink(links).id(d => d.id).distance(150))
+            .force("charge", d3.forceManyBody().strength(-200))
+            .force("center", d3.forceCenter(300, 300))
+            .force('collide', d3.forceCollide(20).iterations(1));
 
-         var link = svg.selectAll(".link")
-             .data(links)
-             .enter().append("line")
-             .attr("class", "link")
-             .attr("id", d => "link-" + d.id); // 添加边的唯一标识符
+        var link = svg.selectAll(".link")
+            .data(links)
+            .enter().append("line")
+            .attr("class", "link")
+            .attr("id", d => "link-" + d.id); // 添加边的唯一标识符
 
-         var node = svg.selectAll(".node")
-             .data(nodes)
-             .enter().append("circle")
-             .attr("class", "node")
-             .attr("r", 20)
-             .call(d3.drag()
-                 .on('start', dragstarted)
-                 .on('drag', dragged)
-                 .on('end', dragended));
+        var node = svg.selectAll(".node")
+            .data(nodes)
+            .enter().append("circle")
+            .attr("class", "node")
+            .attr("r", 20)
+            .call(d3.drag()
+                .on('start', dragstarted)
+                .on('drag', dragged)
+                .on('end', dragended));
 
-         var label = svg.selectAll(".label")
-             .data(nodes)
-             .enter().append("text")
-             .attr("class", "label")
-             .text(d => d.name)
-             .attr("dx", -15);
+        var label = svg.selectAll(".label")
+            .data(nodes)
+            .enter().append("text")
+            .attr("class", "label")
+            .text(d => d.name)
+            .attr("dx", -15);
 
-         var weightLabel = svg.selectAll(".weight-label")
-             .data(links)
-             .enter().append("text")
-             .attr("class", "weight-label")
-             .text(d =>  d.weight)
-             .attr("dx", 0);
+        var weightLabel = svg.selectAll(".weight-label")
+            .data(links)
+            .enter().append("text")
+            .attr("class", "weight-label")
+            .text(d =>  d.weight)
+            .attr("dx", 0);
 
-         simulation.on("tick", () => {
-           link
-               .attr("x1", d => d.source.x)
-               .attr("y1", d => d.source.y)
-               .attr("x2", d => d.target.x)
-               .attr("y2", d => d.target.y);
+        simulation.on("tick", () => {
+            link
+                .attr("x1", d => d.source.x)
+                .attr("y1", d => d.source.y)
+                .attr("x2", d => d.target.x)
+                .attr("y2", d => d.target.y);
 
-           node
-               .attr("cx", d => d.x)
-               .attr("cy", d => d.y);
+            node
+                .attr("cx", d => d.x)
+                .attr("cy", d => d.y);
 
-           label
-               .attr("x", d => d.x + 15)
-               .attr("y", d => d.y + 5);
+            label
+                .attr("x", d => d.x + 15)
+                .attr("y", d => d.y + 5);
 
-           weightLabel
-               .attr("x", d => (d.source.x + d.target.x) / 2)
-               .attr("y", d => (d.source.y + d.target.y) / 2);
-         });
-           function dragstarted(event, d) {
-               if (!event.active) simulation.alphaTarget(0.3).restart();
-               d.fx = d.x;
-               d.fy = d.y;
-           }
+            weightLabel
+                .attr("x", d => (d.source.x + d.target.x) / 2)
+                .attr("y", d => (d.source.y + d.target.y) / 2);
+        });
+        function dragstarted(event, d) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            d.fx = d.x;
+            d.fy = d.y;
+        }
 
-           function dragged(event, d) {
-               d.fx = event.x;
-               d.fy = event.y;
-           }
+        function dragged(event, d) {
+            d.fx = event.x;
+            d.fy = event.y;
+        }
 
-           function dragended(event, d) {
-               if (!event.active) simulation.alphaTarget(0);
-               d.fx = null;
-               d.fy = null;
-           }
+        function dragended(event, d) {
+            if (!event.active) simulation.alphaTarget(0);
+            d.fx = null;
+            d.fy = null;
+        }
     }
 };
 </script>
