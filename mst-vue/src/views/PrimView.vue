@@ -199,11 +199,11 @@ export default {
         var graph = this.$route.params.graph
         const res = create_and_prim(num,start,type,graph)
         if(res == null){
-        this.$message.error('The input of graph is not valid! Please try again.')
+            this.$message.error('The input of graph is not valid! Please try again.')
         }
         this.nodes = res.nodes
         this.links = res.links
-        this.highlight = res.highlight
+         this.highlight = res.highlight
 
          // create a network
          var nodes = this.nodes
@@ -225,7 +225,7 @@ export default {
              .data(links)
              .enter().append("line")
              .attr("class", "link")
-             .attr("id", d => "link-" + d.id); 
+             .attr("id", d => "link-" + d.id); // 添加边的唯一标识符
 
          var node = svg.selectAll(".node")
              .data(nodes)

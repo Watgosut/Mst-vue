@@ -1,7 +1,7 @@
 <template>
     <div id="app">
         <div class="text">
-            <el-menu class="top" mode="horizontal" :default-active="activeIndex" @select="handleSelect">
+            <el-menu class="top" mode="horizontal" :default-active="$route.name" @select="handleSelect">
                 <div class="icon" @click="handleSelect('home',['home'])">
                     <span id="Vis" class="vis">Vis</span>
                     <span id="Mst" class="mst">Mst</span>
