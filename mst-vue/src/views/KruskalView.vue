@@ -1,6 +1,9 @@
 <template>
     <div>
         <el-row>
+            <p><b>You can drag the node to display the graph better</b></p>
+        </el-row>
+        <el-row>
             <el-col :span="8">
                 <div class="prim-algorithm">
                     <pre>
@@ -105,7 +108,7 @@ export default {
                 clearInterval(this.interval);
                 this.interval = setInterval(() => {
                     if (this.start) {
-                        this.progress += 1;
+                        this.progress = parseInt(this.progress) + 1;
                         this.updateHighlight();
                     }
                 }, this.speed);
@@ -119,7 +122,7 @@ export default {
         },
         updateHighlight() {
             var index = this.progress;
-            if (index >= 0 && index <= this.highlight.length) {
+            if (index > 0 && index <= this.highlight.length) {
                 if(this.pre!=null){
                     this.pre.classList.remove("highlighted-code-line", true);
                 }
@@ -145,11 +148,20 @@ export default {
                 }
 
             }
+            else {
+                this.start = false;
+            }
         }
     },
     mounted() {
         var num = parseInt(this.$route.params.num)
-        const res = create_and_kruskal(num)
+        var type = this.$route.params.type
+        var graph = this.$route.params.graph
+
+        const res = create_and_kruskal(num,type,graph)
+        if(res == null){
+            this.$message.error('The input of graph is not valid! Please try again.')
+        }
         this.nodes = res.nodes
         this.links = res.links
         this.highlight = res.highlight
@@ -165,10 +177,10 @@ export default {
             .attr("height", 680);
 
         var simulation = d3.forceSimulation(nodes)
-            .force("link", d3.forceLink(links).id(d => d.id).distance(150))
+            .force("link", d3.forceLink(links).id(d => d.id).distance(300))
             .force("charge", d3.forceManyBody().strength(-200))
             .force("center", d3.forceCenter(300, 300))
-            .force('collide', d3.forceCollide(20).iterations(1));
+            .force('collide', d3.forceCollide(80).iterations(1));
 
         var link = svg.selectAll(".link")
             .data(links)
@@ -247,20 +259,27 @@ svg {
     stroke: #999;
     stroke-opacity: 0.6;
     stroke-width: 4px;
+    font-weight: bold;
+
 }
 
 .node {
     fill: #ccc;
     stroke: #fff;
     stroke-width: 2px;
+    font-weight: bold;
 }
 
 .label {
-    font-size: 12px;
+    font-size: 15px;
+    font-weight: bold;
+
 }
 
 .weight-label {
     font-size: 12px;
+    font-weight: bold;
+
 }
 
 .highlighted {

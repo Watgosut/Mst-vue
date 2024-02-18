@@ -1,6 +1,9 @@
 <template>
     <div>
         <el-row>
+            <p><b>You can drag the node to display the graph better</b></p>
+        </el-row>
+        <el-row>
             <el-col :span="8">
                 <div class="prim-algorithm">
                     <pre>
@@ -24,6 +27,19 @@
 <span ref="codeLine17">    return MST</span>
                       </code>
                     </pre>
+                    <div style="margin: 20px">
+                        <b><p>Start Node: {{startNode}}</p></b>
+                        <b>Dist</b>
+<!--                        <div v-else>-->
+<!--                            <div v-for="(item, idx) in dist">-->
+<!--                                <p>{{idx}} : {{item}}</p>-->
+<!--                            </div>-->
+<!--                        </div>-->
+                        <el-table height="200" border :data="formattedData" style="width: 100%">
+                            <el-table-column :label="'Key'" prop="key" :key="'key'"></el-table-column>
+                            <el-table-column :label="'Value'" prop="value" :key="'value'"></el-table-column>
+                        </el-table>
+                    </div>
                 </div>
             </el-col>
             <el-col :span="10">
@@ -72,8 +88,24 @@
 <script>
 import * as d3 from 'd3';
 import {create_and_prim} from "@/backend/API";
+import index from "vuex";
 
 export default {
+    computed: {
+        index() {
+            return index
+        },
+        formattedData() {
+            if(this.dist == null) {
+                return []
+            }
+            return this.dist.map((obj,idx) => {
+                const key = idx; // 获取对象的唯一键
+                const value = obj; // 获取对应的值
+                return { key, value };
+            });
+        },
+    },
   data() {
     return {
       nodes: [],
@@ -84,7 +116,9 @@ export default {
         start:false,
         speed: 1000,
         interval:null,
-        type: ['primary','default','default']
+        type: ['primary','default','default'],
+        dist: null,
+        startNode: null
     }
   },
     methods:{
@@ -102,60 +136,71 @@ export default {
               }, this.speed);
           }
       },
-        startProgress(){
-            if(this.interval !== null && this.start){
-                clearInterval(this.interval);
-                this.interval = null
-            }
-            if(!this.start) {
-                clearInterval(this.interval);
-                this.interval = setInterval(() => {
-                    if (this.start) {
-                        this.progress += 1;
-                        this.updateHighlight();
-                    }
-                }, this.speed);
-            }
-            else{
-                clearInterval(this.interval);
-                this.interval = null
-            }
-            this.start = !this.start;
+      startProgress(){
+          if(this.interval !== null && this.start){
+              clearInterval(this.interval);
+              this.interval = null
+          }
+          if(!this.start) {
+              clearInterval(this.interval);
+              this.interval = setInterval(() => {
+                  if (this.start) {
+                      this.progress = parseInt(this.progress) + 1;
+                      this.updateHighlight();
+                  }
+              }, this.speed);
+          }
+          else{
+              clearInterval(this.interval);
+              this.interval = null
+          }
+          this.start = !this.start;
 
-        },
-        updateHighlight() {
-            var index = this.progress;
-            if (index >= 0 && index <= this.highlight.length) {
-                if(this.pre!=null){
-                    this.pre.classList.remove("highlighted-code-line", true);
-                }
-                const codeLineElement = this.$refs[`codeLine${this.highlight[index-1]['id']}`];
-                if (codeLineElement) {
-                    codeLineElement.classList.add("highlighted-code-line", true);
-                    this.pre = codeLineElement
-                }
-                this.highlightLink(index);
-            }
-        },
-        highlightLink(index){
-            if (index <= this.highlight.length) {
-                for(var i=0; i<this.links.length; i++) {
-                    var linkId = this.links[i].id;
-                    var selectedLink = d3.select("#link-" + linkId);
-                    if (this.highlight[index-1]['mst_edges'].indexOf(linkId) !== -1) {
-                        selectedLink.classed("highlighted", true);
-                    } else {
-                        selectedLink.classed("highlighted", false);
+      },
+      updateHighlight() {
+          var index = this.progress;
+          if (index > 0 && index <= this.highlight.length) {
+              if(this.pre!=null){
+                  this.pre.classList.remove("highlighted-code-line", true);
+              }
+              const codeLineElement = this.$refs[`codeLine${this.highlight[index-1]['id']}`];
+              if (codeLineElement) {
+                  codeLineElement.classList.add("highlighted-code-line", true);
+                  this.pre = codeLineElement
+              }
+              this.dist = this.highlight[index-1]['dist']
+              this.highlightLink(index);
+          }
+          else {
+              this.start = false;
+          }
+      },
+      highlightLink(index){
+          if (index <= this.highlight.length) {
+              for(var i=0; i<this.links.length; i++) {
+                  var linkId = this.links[i].id;
+                  var selectedLink = d3.select("#link-" + linkId);
+                  if (this.highlight[index-1]['mst_edges'].indexOf(linkId) !== -1) {
+                      selectedLink.classed("highlighted", true);
+                  } else {
+                      selectedLink.classed("highlighted", false);
 
-                    }
-                }
+                  }
+              }
 
-            }
-        }
+          }
+      }
     },
     mounted() {
         var num = parseInt(this.$route.params.num)
-        const res = create_and_prim(num)
+        var start = parseInt(this.$route.params.start)
+        this.startNode = start
+        var type = this.$route.params.type
+        var graph = this.$route.params.graph
+        const res = create_and_prim(num,start,type,graph)
+        if(res == null){
+            this.$message.error('The input of graph is not valid! Please try again.')
+        }
         this.nodes = res.nodes
         this.links = res.links
          this.highlight = res.highlight
@@ -170,11 +215,11 @@ export default {
              .attr("width", '100%')
              .attr("height", 680);
 
-         var simulation = d3.forceSimulation(nodes)
-             .force("link", d3.forceLink(links).id(d => d.id).distance(150))
-             .force("charge", d3.forceManyBody().strength(-200))
-             .force("center", d3.forceCenter(300, 300))
-             .force('collide', d3.forceCollide(20).iterations(1));
+        var simulation = d3.forceSimulation(nodes)
+            .force("link", d3.forceLink(links).id(d => d.id).distance(300))
+            .force("charge", d3.forceManyBody().strength(-200))
+            .force("center", d3.forceCenter(300, 300))
+            .force('collide', d3.forceCollide(80).iterations(1));
 
          var link = svg.selectAll(".link")
              .data(links)
@@ -241,7 +286,8 @@ export default {
                d.fx = null;
                d.fy = null;
            }
-    }
+    },
+
 };
 </script>
 
