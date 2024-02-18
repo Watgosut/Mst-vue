@@ -9,7 +9,7 @@ export function getRandomConnectedGraph(numVertices) {
     let g = new Graph(numVertices);
     let generatedEdges = {};
 
-    
+    // 随机生成边，以确保图满足连通条件
     for (let i = 0; i < numVertices - 1; i++) {
         let dest = i + 1;
         let weight = getRandomInt(1, 10);
@@ -17,9 +17,9 @@ export function getRandomConnectedGraph(numVertices) {
         generatedEdges[`${i}-${dest}`] = true;
     }
 
-    
-    let maxEdges = Math.ceil(Math.random() * (numVertices * (numVertices - 1) / 2 ));
-    for (let i = 0; i < maxEdges + 1; i++) {
+    // 随机生成额外的边以确保连通性
+    let maxEdges = Math.floor(Math.random() * (numVertices * (numVertices - 1) / 2 - (numVertices - 1))) + (numVertices - 1);
+    for (let i = 0; i < maxEdges - (numVertices - 1) + 4; i++) {
         let src = getRandomInt(0, numVertices - 3);
         let dest = getRandomInt(src + 2, numVertices - 1);
         let weight = getRandomInt(1, 10);
@@ -33,6 +33,7 @@ export function getRandomConnectedGraph(numVertices) {
 }
 
 export function getGraphFromInput(numVertices, graphInput){
+    console.log(graphInput)
     let g = new Graph(numVertices);
     let edges = graphInput.split('\n');
     for(let i = 0; i < edges.length; i++){
@@ -40,15 +41,7 @@ export function getGraphFromInput(numVertices, graphInput){
         let start = parseInt(edges[i][0]);
         let end = parseInt(edges[i][1]);
         let weight = parseInt(edges[i][2]);
-        try{
-            g.addEdge(start, end, weight, i);
-        }
-        catch (e){
-            console.log(e);
-            return null
-        }
-
-        
+        g.addEdge(start, end, weight, i);
     }
     return g;
 }
