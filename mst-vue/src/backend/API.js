@@ -74,12 +74,12 @@ function prim(graph, startNode) {
     const dist = Array(num_vertices).fill(Infinity);
     const mst_edges = [];
     const highlight_data = [
-        { id: 2, dist, mst_edges: mst_edges.map(e => e.id) },
-        { id: 3, dist, mst_edges: mst_edges.map(e => e.id) }
+        { id: 2, dist: null, mst_edges: mst_edges.map(e => e.id) },
+        { id: 3, dist: [ ...dist ], mst_edges: mst_edges.map(e => e.id) }
     ];
 
     dist[startNode] = startNode;
-    highlight_data.push({ id: 4, dist, mst_edges: mst_edges.map(e => e.id) });
+    highlight_data.push({ id: 4, dist: [ ...dist ], mst_edges: mst_edges.map(e => e.id) });
 
     const pq = [];
     const src = startNode;
@@ -89,38 +89,40 @@ function prim(graph, startNode) {
         pq.push(edge);
     }
 
-    highlight_data.push({ id: 5, dist, mst_edges: mst_edges.map(e => e.id) });
+    highlight_data.push({ id: 5, dist: [ ...dist ], mst_edges: mst_edges.map(e => e.id) });
     while (pq.length > 0) {
         const edge = pq.shift();
 
-        highlight_data.push({ id: 6, dist, mst_edges: mst_edges.map(e => e.id) });
-        highlight_data.push({ id: 7, dist, mst_edges: mst_edges.map(e => e.id) });
-        highlight_data.push({ id: 8, dist, mst_edges: mst_edges.map(e => e.id) });
+        highlight_data.push({ id: 6, dist: [ ...dist ], mst_edges: mst_edges.map(e => e.id) });
+        highlight_data.push({ id: 7, dist: [ ...dist ], mst_edges: mst_edges.map(e => e.id) });
+        highlight_data.push({ id: 8, dist: [ ...dist ], mst_edges: mst_edges.map(e => e.id) });
         if (visited[edge.dest]) {
-            highlight_data.push({ id: 9, dist, mst_edges: mst_edges.map(e => e.id) });
+            highlight_data.push({ id: 9, dist: [ ...dist ], mst_edges: mst_edges.map(e => e.id) });
             continue;
         }
 
         visited[edge.dest] = true;
         mst_edges.push(edge);
-        highlight_data.push({ id: 10, dist, mst_edges: mst_edges.map(e => e.id) });
-        highlight_data.push({ id: 11, dist, mst_edges: mst_edges.map(e => e.id) });
+        highlight_data.push({ id: 10, dist: [ ...dist ], mst_edges: mst_edges.map(e => e.id) });
+        highlight_data.push({ id: 11, dist: [ ...dist ], mst_edges: mst_edges.map(e => e.id) });
         if (mst_edges.length === num_vertices - 1) {
-            highlight_data.push({ id: 12, dist, mst_edges: mst_edges.map(e => e.id) });
+            highlight_data.push({ id: 12, dist: [ ...dist ], mst_edges: mst_edges.map(e => e.id) });
+
+
             return highlight_data;
         }
-        highlight_data.push({ id: 13, dist, mst_edges: mst_edges.map(e => e.id) });
+        highlight_data.push({ id: 13, dist: [ ...dist ], mst_edges: mst_edges.map(e => e.id) });
         for (const e of graph.getEdges(edge.dest)) {
-            highlight_data.push({ id: 14, dist, mst_edges: mst_edges.map(e => e.id) });
+            highlight_data.push({ id: 14, dist: [ ...dist ], mst_edges: mst_edges.map(e => e.id) });
             if (!visited[e.dest] && e.weight < dist[e.dest]) {
                 dist[e.dest] = e.weight;
                 pq.push(e);
-                highlight_data.push({ id: 15, dist, mst_edges: mst_edges.map(e => e.id) });
-                highlight_data.push({ id: 16, dist, mst_edges: mst_edges.map(e => e.id) });
+                highlight_data.push({ id: 15, dist: [ ...dist ], mst_edges: mst_edges.map(e => e.id) });
+                highlight_data.push({ id: 16, dist: [ ...dist ], mst_edges: mst_edges.map(e => e.id) });
             }
         }
     }
-    highlight_data.push({ id: 17, dist, mst_edges: mst_edges.map(e => e.id) });
+    highlight_data.push({ id: 17, dist: [ ...dist ], mst_edges: mst_edges.map(e => e.id) });
     return highlight_data;
 }
 
@@ -132,6 +134,9 @@ export function create_and_prim(num_vertices, start, type, graph) {
     }
     else{
         g = getGraphFromInput(num_vertices,graph);
+    }
+    if(g === null){
+        return null;
     }
     const result = { nodes: [], links: [], highlight_data: [] };
 
@@ -148,8 +153,18 @@ export function create_and_prim(num_vertices, start, type, graph) {
     return result;
 }
 
-export function create_and_kruskal(num_vertices) {
-    const g = getRandomConnectedGraph(num_vertices);
+export function create_and_kruskal(num_vertices,type,graph) {
+    let g;
+    if(type === 'Generate Graph'){
+        g = getRandomConnectedGraph(num_vertices);
+    }
+    else{
+        g = getGraphFromInput(num_vertices,graph);
+    }
+    if(g === null){
+        return null;
+    }
+    // const g = getRandomConnectedGraph(num_vertices);
     const result = { nodes: [], links: [], highlight_data: [] };
 
     for (let i = 0; i < g.V; i++) {

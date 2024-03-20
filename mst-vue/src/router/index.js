@@ -35,7 +35,7 @@ const routes = [
         component: () => import( '../views/FeedbackView.vue')
       },
       {
-        path: '/prim/:num',
+        path: '/prim/:num/:start/:type/:graph',
         name: 'prim',
         // route level code-splitting
         // this generates a separate chunk (about.[hash].js) for this route
@@ -43,7 +43,7 @@ const routes = [
         component: () => import(/* webpackChunkName: "about" */ '../views/PrimView.vue'),
       },
       {
-        path: '/kruskal/:num',
+        path: '/kruskal/:num/:type/:graph',
         name: 'kruskal',
         component: () => import(/* webpackChunkName: "about" */ '../views/KruskalView.vue'),
       }

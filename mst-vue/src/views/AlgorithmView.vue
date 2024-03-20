@@ -258,7 +258,7 @@ export default {
                 return
             }
             if(this.prim_select_type === null){
-                this.$message.error("Please select type of graph")
+                this.$message.error("Please select generate type of graph")
                 return
             }
             if(this.prim_select_type === 'Import Graph from file' && this.prim_file_graph === null){
@@ -290,7 +290,7 @@ export default {
                 return
             }
             if(this.kruskal_select_type === null){
-                this.$message.error("Please select type of graph")
+                this.$message.error("Please select generate type of graph")
                 return
             }
             if(this.kruskal_select_type === 'Import Graph from file' && this.kruskal_file_graph === null){

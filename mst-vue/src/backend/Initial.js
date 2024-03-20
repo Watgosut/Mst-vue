@@ -9,7 +9,7 @@ export function getRandomConnectedGraph(numVertices) {
     let g = new Graph(numVertices);
     let generatedEdges = {};
 
-    
+    // 随机生成边，以确保图满足连通条件
     for (let i = 0; i < numVertices - 1; i++) {
         let dest = i + 1;
         let weight = getRandomInt(1, 10);
@@ -17,7 +17,7 @@ export function getRandomConnectedGraph(numVertices) {
         generatedEdges[`${i}-${dest}`] = true;
     }
 
-    
+    // 随机生成额外的边以确保连通性
     let maxEdges = Math.ceil(Math.random() * (numVertices * (numVertices - 1) / 2 ));
     for (let i = 0; i < maxEdges + 1; i++) {
         let src = getRandomInt(0, numVertices - 3);
@@ -48,7 +48,6 @@ export function getGraphFromInput(numVertices, graphInput){
             return null
         }
 
-        
     }
     return g;
 }

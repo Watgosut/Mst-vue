@@ -29,12 +29,11 @@
             <el-col :span="6" >
                 <div class="prim-algorithm">
                     <div class="text" style="padding: 20px">
-                        <p>The core idea of the Prim algorithm is actually the segmentation theorem, which starts from a vertex and continuously expands the graph segmentation until there is no segmentation, constructing the minimum spanning tree.</p>
-                        <p>1. Establish an edge set to store results, a node set to store nodes, and a minimum heap of edges to mark whether they have been accessed</p>
-                        <p>2. Start traversing all nodes, and if there is no access, add it to the node set, and then add its connected edges to the heap.</p>
-                        <p>3. Take the smallest edge from the heap and determine whether the to node has been accessed. If not, add this edge to the spanning tree (the edge we want) and mark the node for access.</p>
-                        <p>4. Then add the edges connected to the to node to the minimum heap, otherwise the network will not expand outward (this step is necessary).</p>
-                        <p>5. Loop through the above operations until all nodes have been traversed.</p>
+                        <p>Kruskal's algorithm, like Prim's algorithm, is a popular method for finding the minimum spanning tree (MST) of a graph, but it approaches the problem from a different angle. Kruskal's algorithm focuses on edges regardless of vertices.</p>
+                        <p>1. Initialization: Start by sorting all the edges of the graph in non-decreasing order of their weights. Create a set to keep track of the MST that will be formed and a disjoint-set (union-find) data structure to keep track of the vertices that are connected by the edges included in the MST so far, helping to detect cycles.</p>
+                        <p>2.Edge Selection: Iterate through the sorted list of edges. For each edge, check if it forms a cycle with the MST formed so far. If it does not, it means adding the edge does not close a loop. </p>
+                        <p>3. Union: When an edge is added to the MST, perform a union operation on the two sets containing the two vertices of the edge, merging them into a single set. </p>
+                        <p>4. Loop through the above operations until all nodes have been traversed.</p>
                     </div>
                 </div>
             </el-col>
